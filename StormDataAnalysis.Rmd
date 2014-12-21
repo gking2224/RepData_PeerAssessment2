@@ -143,8 +143,8 @@ The most frequently occuring event over the period is Hail, with nearly ten time
 
 ### Most Harmful Weather Event
 
-Here I group injuries and fatalities data by event type, summing up the number of each per event type. This is then combined into a single health impact dataset and order first by number of fatalities then injuries.
-```{r fig.height=5}
+Here I group injuries and fatalities data by event type, summing up the number of each per event type. I then display the top ten of each in a panel plot.
+```{r fig.height=8}
 byinjuries <- as.data.frame(tapply(dtc$INJURIES, dtc$EVTYPE, sum))
 byinjuries$EVTYPE<-row.names(byinjuries)
 byinjuries <- byinjuries[order(byinjuries[1], decreasing=TRUE),]
