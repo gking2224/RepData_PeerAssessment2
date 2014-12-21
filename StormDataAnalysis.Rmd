@@ -4,6 +4,10 @@ author: "Graham King"
 date: "21 December 2014"
 output: html_document
 ---
+```{r global_options, include=FALSE}
+library(knitr)
+opts_chunk$set(fig.width=12)
+```
 
 ## Synopsis
 
@@ -11,7 +15,7 @@ This report is an analysis of [this dataset](https://d396qusza40orc.cloudfront.n
 
 The weather event causing most fatalities in the US between 1995 and 2011 is Excessive Heat, closely followed by Tornado. Tornados cause by far the most injuries of any weather event.
 
-In terms of economic cost, Flood has by far the most signficant impact, then Hurricane/Typhoon, followed by Tornadao and Storm Surge.
+In terms of economic cost, Flood has by far the most signficant impact, then Hurricane/Typhoon, followed by Storm Surge and Tornado.
 
 The fine granularity of weather event categories could have an impact on the results. Further analysis of this is recommended.
 
@@ -99,9 +103,20 @@ The following questions were addressed in order to get some familiarity with the
 
 1. *How many events were recorded per year?*
 ```{r}
-barplot(tapply(dtc$year, dtc$year, length),
-        main = "Figure 1: Number of Weather Events Recorded by Year",
-        ylab = "Total event count", xlab="Year")
+yd <- as.data.frame(tapply(dtc$year, dtc$year, length))
+yd$year <- row.names(yd)
+row.names(yd) <- NULL
+names(yd) <- c("count", "year")
+
+library(ggplot2)
+library(grid)
+ye <- ggplot(yd, aes(x=year, y=count))
+ye <- ye + geom_bar(stat="identity")
+ye <- ye + xlab("Year") + ylab("Observations")
+ye <- ye + ggtitle("Figure 1: Total Observations per Year")
+ye <- ye + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+print(ye)
+
 print(min(dtc$year)); nrow(dtc[dtc$year==min(dtc$year),])
 print(max(dtc$year)); nrow(dtc[dtc$year==max(dtc$year),])
 ```
@@ -149,7 +164,6 @@ hm <- melt(health, measure.vars=c("fatalities", "injuries"),
            id.vars="evtype", variable.name="type", value.name="count")
 dim(hm$count) <- NULL
 
-library(ggplot2)
 gp <- ggplot(hm, aes(x=evtype, y=count))
 gp <- gp + geom_bar(stat="identity")
 gp <- gp + facet_grid(type ~ ., scales="free_y",
