@@ -147,38 +147,32 @@ Here I group injuries and fatalities data by event type, summing up the number o
 ```{r}
 byinjuries <- as.data.frame(tapply(dtc$INJURIES, dtc$EVTYPE, sum))
 byinjuries$EVTYPE<-row.names(byinjuries)
+byinjuries <- byinjuries[order(byinjuries[1], decreasing=TRUE),]
 names(byinjuries) <- c("injuries", "evtype")
+row.names(byinjuries) <- NULL
 byfatalities <- as.data.frame(tapply(dtc$FATALITIES, dtc$EVTYPE, sum))
 byfatalities$EVTYPE<-row.names(byfatalities)
+byfatalities <- byfatalities[order(byfatalities[1], decreasing=TRUE),]
 names(byfatalities) <- c("fatalities", "evtype")
+row.names(byfatalities) <- NULL
 
-health <- merge(byinjuries, byfatalities)
-health <- health[order(health$fatalities, health$injuries, decreasing = TRUE),]
-health <- health[1:10,]
-dimnames(health$fatalities) <- NULL
-dimnames(health$injuries) <- NULL
-health$evtype <- factor(health$evtype)
+library(ggplot2)
+library(gridExtra)
+gf <- ggplot(byfatalities[1:10,], aes(x=evtype, y=fatalities))
+gf <- gf + geom_bar(stat="identity")
+gf <- gf + ylab("Fatalities")
+gf <- gf + theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-library(reshape2)
-hm <- melt(health, measure.vars=c("fatalities", "injuries"),
-           id.vars="evtype", variable.name="type", value.name="count")
-dim(hm$count) <- NULL
+gi <- ggplot(byinjuries[1:10,], aes(x=evtype, y=injuries))
+gi <- gi + geom_bar(stat="identity")
+gi <- gi + xlab("Weather Event Type") + ylab("Injuries")
+gi <- gi + theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-gp <- ggplot(hm, aes(x=evtype, y=count))
-gp <- gp + geom_bar(stat="identity")
-gp <- gp + facet_grid(type ~ ., scales="free_y",
-                      labeller=function(x,y){
-                          ifelse(y=="fatalities","Fatalities", "Injuries")})
-gp <- gp + xlab("Weather Event Type") + ylab("Incidence (total in the period)")
-gp <- gp + ggtitle("Figure 2: Health impact of US weather events (1995-2011)")
-gp <- gp + theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-print(gp)
+grid.arrange(gf, gi, nrow=2,
+             main="Figure 2: Health impact of US weather events (1995-2011)")
 ```
 
-This figure plots the fatalities and injuries caused by the top 10 weather event types. It shows that Excessive Heat causes the most fatalities, followed by Tornado. Tornados cause th emost injuries by a significant margin.
-
-*Note that a limitation of the way that this data was sorted is that a weather event with a large number of injuries but few fatalities may not register.*
+This figure plots the top 10 causes of fatalities and injuries, with the total number of each in the period 1995-2011. It shows that Excessive Heat causes the most fatalities, followed by Tornado. Tornados cause the most injuries by a significant margin.
 
 ****
 
