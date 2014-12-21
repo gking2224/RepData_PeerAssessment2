@@ -20,6 +20,7 @@ library(reshape2)
 hm <- melt(health, measure.vars=c("fatalities", "injuries"),
            id.vars="evtype", variable.name="type", value.name="count")
 dim(hm$count) <- NULL
+library(lattice)
 bp <- barchart(count ~ evtype | type, data=hm, ylab="Number of events",
                xlab = "Weather Event Type",
                main="Health impact of US weather events (1995-2011)",
