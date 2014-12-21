@@ -7,13 +7,13 @@ output: html_document
 
 ## Synopsis
 
-This document seeks to perform some exploratory analysis on [this dataset](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2) of storm and weather events, published by the U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database, in order to identify the most significant factors in terms of health and economic impact.
+This report is an analysis of [this dataset](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2) of storm and weather events, published by the U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database, in order to identify the most significant factors in terms of health and economic impact.
 
-The weather event causing most fatalities in the US since 1995 is Excessive Heat, closely followed by Tornado. Tornados cause by far the most injuries of any weather event.
+The weather event causing most fatalities in the US between 1995 and 2011 is Excessive Heat, closely followed by Tornado. Tornados cause by far the most injuries of any weather event.
 
 In terms of economic cost, Flood has by far the most signficant impact, then Hurricane/Typhoon, followed by Tornadao and Storm Surge.
 
-The granularity of the breakdown of the data by weather event could have an impact on the results. Further analysis of this is recommended.
+The fine granularity of weather event categories could have an impact on the results. Further analysis of this is recommended.
 
 ****
 
@@ -106,9 +106,9 @@ print(min(dtc$year)); nrow(dtc[dtc$year==min(dtc$year),])
 print(max(dtc$year)); nrow(dtc[dtc$year==max(dtc$year),])
 ```
 
-This shows that there were very few events (`r nrow(dtc[dtc$year==min(dtc$year),])`) recorded in the earliest year (`r min(dtc$year)`) in the dataset, rising slowly during the 70s, 80s and early 90s before  suddenly increasing in the mid 90s and then rising more rapidly to a peak of `r nrow(dtc[dtc$year==max(dtc$year),])` in `r max(dtc$year)`
+This shows that there were very few events (`r nrow(dtc[dtc$year==min(dtc$year),])`) recorded in the earliest year (`r min(dtc$year)`) contained in the dataset, rising slowly during the 70s, 80s and early 90s before  suddenly increasing in the mid 90s and then rising more rapidly to a peak of `r nrow(dtc[dtc$year==max(dtc$year),])` in `r max(dtc$year)`
 
-Given the low rate of data collection in the earlier years and the increased relevance (and presumably lower sampling error rate) of later data, I shall limit this analysis to data from 1995-2011.
+Given the low rate of data collection in the earlier years and the increased relevance (and presumably lower sampling error rate) of later data, I shall limit this analysis to data recorded between 1995 and 2011 (inclusive).
 ```{r}
 dtc <- dtc[dtc$year >=1995,]
 ```
@@ -128,7 +128,7 @@ The most frequently occuring event over the period is Hail, with nearly ten time
 
 ### Most Harmful Weather Event
 
-Group injuries and fatalities data by event type, summing up the number of each per event type. This is then combined into a single health impact dataset and order first by number of fatalities then injuries.
+Here I group injuries and fatalities data by event type, summing up the number of each per event type. This is then combined into a single health impact dataset and order first by number of fatalities then injuries.
 ```{r}
 byinjuries <- as.data.frame(tapply(dtc$INJURIES, dtc$EVTYPE, sum))
 byinjuries$EVTYPE<-row.names(byinjuries)
@@ -149,23 +149,28 @@ hm <- melt(health, measure.vars=c("fatalities", "injuries"),
            id.vars="evtype", variable.name="type", value.name="count")
 dim(hm$count) <- NULL
 
-library(lattice)
-bp <- barchart(count ~ evtype | type, data=hm, ylab="Number of events",
-               xlab = "Weather Event Type",
-               main="Figure 2: Health impact of US weather events (1995-2011)",
-               scales=list(y=list(relation="free"),x=list(rot=90)))
-print(bp)
+library(ggplot2)
+gp <- ggplot(hm, aes(x=evtype, y=count))
+gp <- gp + geom_bar(stat="identity")
+gp <- gp + facet_grid(type ~ ., scales="free_y",
+                      labeller=function(x,y){
+                          ifelse(y=="fatalities","Fatalities", "Injuries")})
+gp <- gp + xlab("Weather Event Type") + ylab("Incidence (total in the period)")
+gp <- gp + ggtitle("Figure 2: Health impact of US weather events (1995-2011)")
+gp <- gp + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+print(gp)
 ```
 
-This figure shows that, by some distance, Tornados have the greatest effect on health both in terms of injuries and fatalities.
+This figure plots the fatalities and injuries caused by the top 10 weather event types. It shows that Excessive Heat causes the most fatalities, followed by Tornado. Tornados cause th emost injuries by a significant margin.
 
-*Note that a limitation of the way that this data was sorted is that a weather event with huge numbers of injuries but few fatalities may not register.*
+*Note that a limitation of the way that this data was sorted is that a weather event with a large number of injuries but few fatalities may not register.*
 
 ****
 
 ### Most Economically Damaging Weather Event
 
-Create a new variable `TOTALDMG` which is the sum of the `CROPDMGNUM` and `PROPDMGNUM` variables. Then group the data by event type, recording the sum of the `TOTALDMG` for each observation of that event type.
+Create a new variable `TOTALDMG` which is the sum of the `CROPDMGNUM` and `PROPDMGNUM` variables. Then group the data by event type, recording the sum of `TOTALDMG` of all observations of that weather event type.
 
 ```{r}
 
@@ -188,13 +193,13 @@ gc <- gc + scale_y_continuous(
     labels=paste0(seq(0,150, by=25), "bn"),
     limits=bn * c(0,155)
 )
-gc <- gc + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+gc <- gc + theme(axis.text.x = element_text(angle = 45, hjust = 1))
 print(gc)
 ```
 
-This figure demonstrates that the most costly weather event is Flood, followed by Hurricane/Typhoon, then Tornado and Storm Surge.
+This figure shows the total cost of the top ten weather event types. It shows that the most costly type of weather event is Flood, followed by Hurricane/Typhoon, then Storm Surge and Tornado.
 
-The results indicate that the granularity of weather event categorisation could result in some overlap, thus affecting the stated impact of certain weather events.
+The results indicate that the granularity of weather event categorisation could affect the stated impact of certain types of weather event. For instance, perhaps the results would be different if High Wind, Hurricane, Hurricane/Typhoon, Tornado & Tropical Storm were all treated as the same type of event.
 
 ****
 

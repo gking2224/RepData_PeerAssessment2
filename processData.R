@@ -9,3 +9,5 @@ dtc$CROPDMGEXP <- factor(dtc$CROPDMGEXP)
 dtc$PROPDMGNUM <- mapply(makenum, dtc$PROPDMG, dtc$PROPDMGEXP)
 dtc$CROPDMGNUM <- mapply(makenum, dtc$CROPDMG, dtc$CROPDMGEXP)
 dtc$TOTALDMG <- dtc$CROPDMGNUM + dtc$PROPDMGNUM
+
+dtc <- dtc[dtc$year >=1995,]

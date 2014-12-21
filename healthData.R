@@ -23,7 +23,16 @@ dim(hm$count) <- NULL
 library(lattice)
 bp <- barchart(count ~ evtype | type, data=hm, ylab="Number of events",
                xlab = "Weather Event Type",
-               main="Health impact of US weather events (1995-2011)",
-               scales=list(y=list(relation="free"),x=list(rot=90)),
-               angle=90)
+               main="Figure 2: Health impact of US weather events (1995-2011)",
+               scales=list(y=list(relation="free"),x=list(rot=90)))
 print(bp)
+
+library(ggplot2)
+gp <- ggplot(hm, aes(x=evtype, y=count))
+gp <- gp + geom_bar(stat="identity")
+gp <- gp + facet_grid(type ~ ., scales="free_y", labeller=function(x,y){ifelse(y=="fatalities","Fatalities", "Injuries")})
+gp <- gp + xlab("Weather Event Type") + ylab("Incidence (total in the period)")
+gp <- gp + ggtitle("Figure 2: Health impact of US weather events (1995-2011)")
+gp <- gp + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+print(gp)

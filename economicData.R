@@ -6,11 +6,12 @@ names(bydmg) <- c("cost", "evtype")
 library(ggplot2)
 gc <- ggplot(bydmg[1:10,], aes(x=factor(evtype), y=cost))
 gc <- gc + geom_bar(stat="identity")
-gc <- gc + xlab("Event Type") + ylab("Total Cost ($)")
 gc <- gc + scale_y_continuous(
     breaks=bn * seq(0,150, by=25),
     labels=paste0(seq(0,150, by=25), "bn"),
     limits=bn * c(0,155)
 )
+gc <- gc + xlab("Event Type") + ylab("Total Cost ($)")
+gc <- gc + ggtitle("Figure 3: Total cost of US weather events (1995-2011)")
 gc <- gc + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 print(gc)
