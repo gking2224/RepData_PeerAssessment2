@@ -144,7 +144,7 @@ The most frequently occuring event over the period is Hail, with nearly ten time
 ### Most Harmful Weather Event
 
 Here I group injuries and fatalities data by event type, summing up the number of each per event type. This is then combined into a single health impact dataset and order first by number of fatalities then injuries.
-```{r}
+```{r fig.height=5}
 byinjuries <- as.data.frame(tapply(dtc$INJURIES, dtc$EVTYPE, sum))
 byinjuries$EVTYPE<-row.names(byinjuries)
 byinjuries <- byinjuries[order(byinjuries[1], decreasing=TRUE),]
@@ -160,7 +160,7 @@ library(ggplot2)
 library(gridExtra)
 gf <- ggplot(byfatalities[1:10,], aes(x=evtype, y=fatalities))
 gf <- gf + geom_bar(stat="identity")
-gf <- gf + ylab("Fatalities")
+gf <- gf + xlab("") + ylab("Fatalities")
 gf <- gf + theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 gi <- ggplot(byinjuries[1:10,], aes(x=evtype, y=injuries))
