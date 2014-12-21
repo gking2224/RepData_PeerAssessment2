@@ -76,19 +76,21 @@ Property and Crop damage values come in a pair of columns, containing a number a
 ```{r}
 table(dtc$PROPDMGEXP)
 table(dtc$CROPDMGEXP)
-```
-The majority of the exponent variables contain expected values, but some don't. I'll remove these and then use a helper function (`makenum`) to create new columns (`CROPDMGNUM` and `PROPDMGNUM`) with absolute numbers from the raw number and exponent variables (i.e '1', 'B' becomes '1,000,000,000'):
-```{r}
-source("functions.R")
+
 exp <- c("k", "K", "m", "M", "b", "B", "", NA)
 
 table(dtc$CROPDMGEXP %in% exp)
 table(dtc$PROPDMGEXP %in% exp)
+```
 
+The majority of the exponent variables contain expected values, but some don't. I'll remove these and then use a helper function (`makenum`) to create new columns (`CROPDMGNUM` and `PROPDMGNUM`) with absolute numbers from the raw number and exponent variables (i.e '1', 'B' becomes '1,000,000,000'):
+```{r}
 dtc <- dtc[dtc$PROPDMGEXP %in% exp &
            dtc$CROPDMGEXP %in% exp,]
 dtc$PROPDMGEXP <- factor(dtc$PROPDMGEXP)
 dtc$CROPDMGEXP <- factor(dtc$CROPDMGEXP)
+
+source("functions.R")
 dtc$PROPDMGNUM <- mapply(makenum, dtc$PROPDMG, dtc$PROPDMGEXP)
 dtc$CROPDMGNUM <- mapply(makenum, dtc$CROPDMG, dtc$CROPDMGEXP)
 ```
