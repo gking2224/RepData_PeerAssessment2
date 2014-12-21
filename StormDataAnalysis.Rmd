@@ -2,7 +2,7 @@
 title: "NOAA Storm Data - Analysis of Significant Factors"
 author: "Graham King"
 date: "21 December 2014"
-output: pdf_document
+output: html_document
 ---
 
 ## Synopsis
@@ -33,7 +33,7 @@ raw.data <- read.csv(
 
 ### First peek at the data
 Having downloaded the data and read the file into variable `raw.data`, let's look at its structure:
-```{r cache=TRUE}
+```{r}
 dim(raw.data)
 str(raw.data)
 ```
@@ -73,7 +73,7 @@ table(dtc$PROPDMGEXP)
 table(dtc$CROPDMGEXP)
 ```
 Since we don't know how to treat many of these values, I'll remove them and use a helper function (`makenum`) to create a new column with absolute numbers (i.e 1B -> 1,000,000,000):
-```{r cache=TRUE}
+```{r}
 source("functions.R")
 exp <- c("k", "K", "m", "M", "b", "B", "", NA)
 dtc <- dtc[dtc$PROPDMGEXP %in% exp &
